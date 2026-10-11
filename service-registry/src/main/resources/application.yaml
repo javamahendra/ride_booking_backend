@@ -9,3 +9,16 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+
+---
+# Applies ONLY when running inside Kubernetes
+spring:
+  config:
+    activate:
+      on-cloud-platform: kubernetes
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -44,3 +44,25 @@ eureka:
   instance:
     hostname: localhost
     prefer-ip-address: false
+
+---
+# Applies ONLY when running inside Kubernetes
+spring:
+  config:
+    activate:
+      on-cloud-platform: kubernetes
+
+  data:
+    redis:
+      host: redis                      # CHANGE: your real Redis host
+      port: 6379
+
+  kafka:
+    bootstrap-servers: kafka:9092      # CHANGE: your real Kafka host
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+  instance:
+    prefer-ip-address: true

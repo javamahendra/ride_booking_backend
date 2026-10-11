@@ -1,0 +1,43 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: rideshare-eks
+  region: ap-south-1
+  version: "1.31"
+
+# VPC Configuration
+vpc:
+  cidr: "10.0.0.0/16"
+  nat:
+    gateway: Single          # Cost-effective (use HighlyAvailable for production)
+
+# Managed Node Group
+managedNodeGroups:
+  - name: rideshare-nodes
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 4
+    volumeSize: 30
+    privateNetworking: true          # Nodes in private subnets
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        albIngress: true
+        cloudWatch: true
+        autoScaler: true
+    tags:
+      Environment: dev
+      Project: rideshare
+
+# Addons
+addons:
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy
+  - name: aws-ebs-csi-driver
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]

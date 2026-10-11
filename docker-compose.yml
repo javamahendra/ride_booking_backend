@@ -2,6 +2,23 @@
 services:
 
   # ─────────────────────────────────────────
+  # KAFKA UI — Browse topics, messages, consumer groups
+  # ─────────────────────────────────────────
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: rideshare-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: "true"
+    networks:
+      - rideshare-network
+
+  # ─────────────────────────────────────────
   # REDIS — Driver Location Storage
   # ─────────────────────────────────────────
   redis:

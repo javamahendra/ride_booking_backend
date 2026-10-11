@@ -1,0 +1,51 @@
+replicaCount: 2
+
+image:
+  repository: YOUR_AWS_ACCOUNT_ID.dkr.ecr.ap-south-1.amazonaws.com/ride-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+fullnameOverride: "ride-service"
+
+service:
+  type: ClusterIP                       # Private only
+  port: 8080
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+env:
+  - name: SPRING_PROFILES_ACTIVE
+    value: "k8s"
+  - name: SERVER_PORT
+    value: "8080"
+  - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+    value: "http://service-registry:8761/eureka/"
+  - name: SPRING_DATASOURCE_URL
+    value: "jdbc:postgresql://postgres:5432/ride_db"   # change later to RDS
+  - name: SPRING_DATASOURCE_USERNAME
+    value: "root"
+  - name: SPRING_DATASOURCE_PASSWORD
+    value: "root"
+  - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+    value: "kafka:9092"                                 # change later to MSK
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health/liveness
+    port: 8080
+  initialDelaySeconds: 50
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health/readiness
+    port: 8080
+  initialDelaySeconds: 40
+  periodSeconds: 10

@@ -1,0 +1,79 @@
+#Application
+server:
+  port: 8083
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: logs
+      prefix: access
+      suffix: .log
+      pattern: '%h %t "%r" %s %D'
+
+spring:
+  application:
+    name: ride-service
+
+  #PostgreSQL Database
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ride_db
+    username: root
+    password: root
+
+  #JPA
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  #Kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+
+      properties:
+        retry.backoff.ms: 1000
+        request.timeout.ms: 5000
+        delivery.timeout.ms: 15000
+
+    consumer:
+      group-id: ride-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring:
+          json:
+            trusted:
+              packages: "*"
+            use:
+              type:
+                headers: false
+            value:
+              default:
+                type: com.rideshare.ride_service.event.RideMatchedEvent
+#Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+  instance:
+    hostname: localhost
+    prefer-ip-address: false
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    org.apache.catalina: INFO
